@@ -93,9 +93,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="HTTP.cs" />
+    <Compile Include="Apfell.cs" />
+    <Compile Include="DefaultProfile.cs" />
     <Compile Include="SaltedCaramel.cs" />
-    <Compile Include="SCCrypto.cs" />
     <Compile Include="SCTask.cs" />
     <Compile Include="SCImplant.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

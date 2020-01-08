@@ -11,12 +11,12 @@ namespace SaltedCaramel.Tasks
             if (task.command == "jobs")
             {
                 task.status = "complete";
-                task.message = JsonConvert.SerializeObject(implant.jobs);
+                task.message = JsonConvert.SerializeObject(implant.JobList);
             }
             else if (task.command == "jobkill")
             {
                 Thread t;
-                foreach (Job j in implant.jobs)
+                foreach (Job j in implant.JobList)
                 {
                     if (j.shortId == Convert.ToInt32(task.@params))
                     {

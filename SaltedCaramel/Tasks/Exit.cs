@@ -8,11 +8,11 @@ namespace SaltedCaramel.Tasks
         {
             try
             {
-                implant.SendComplete(task.id);
+                implant.Profile.SendComplete(task.id);
             }
             catch (Exception e)
             {
-                implant.SendError(task.id, e.Message);
+                implant.Profile.SendError(task.id, e.Message);
             }
             Environment.Exit(0);
         }

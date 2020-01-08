@@ -15,8 +15,8 @@ namespace SaltedCaramel.Tasks
             Reflection.Assembly assembly = Reflection.Assembly.Load(assemblyBytes);
             string result = assembly.EntryPoint.Invoke(null, args).ToString();
 
-            implant.PostResponse(new SCTaskResp(task.id, result));
-            implant.SendComplete(task.id);
+            implant.Profile.PostResponse(new SCTaskResp(task.id, result));
+            implant.Profile.SendComplete(task.id);
         }
     }
 }
