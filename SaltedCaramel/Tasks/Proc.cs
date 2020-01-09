@@ -6,7 +6,6 @@ using System.IO;
 using System.IO.Pipes;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Security;
 using System.Security.AccessControl;
 using System.Threading;
 using SaltedCaramel.Jobs;

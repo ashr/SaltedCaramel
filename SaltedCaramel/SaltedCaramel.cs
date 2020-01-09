@@ -1,10 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Threading;
-using Profiles;
+﻿using Profiles;
 
 namespace SaltedCaramel
 {

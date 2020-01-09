@@ -1,14 +1,10 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 using System.Threading;
 using System.Net;
 using System.Net.Sockets;
 using System.Linq;
-using Apfell.Structs;
 using Apfell.C2Profiles;
 using SaltedCaramel.Tasks;
 using SaltedCaramel.Jobs;
