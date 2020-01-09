@@ -6,7 +6,7 @@ namespace SaltedCaramel.Tasks
 {
     public class ChangeDir
     {
-        public static void Execute(SCTask task)
+        public static void Execute(SCTask task, SCImplant agent)
         {
             string path = task.@params;
 

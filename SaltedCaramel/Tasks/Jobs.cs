@@ -1,11 +1,13 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Threading;
+using SaltedCaramel.Jobs;
 
 namespace SaltedCaramel.Tasks
 {
     public class Jobs
-    {
+    { 
+        // Split this out
         public static void Execute(SCTask task, SCImplant implant)
         {
             if (task.command == "jobs")
@@ -18,19 +20,17 @@ namespace SaltedCaramel.Tasks
                 Thread t;
                 foreach (Job j in implant.JobList)
                 {
-                    if (j.shortId == Convert.ToInt32(task.@params))
+                    if (j.JobID == Convert.ToInt32(task.@params))
                     {
-                        t = j.thread;
-                        try
+                        if (j.Kill())
                         {
-                            t.Abort();
                             task.status = "complete";
-                            task.message = $"Killed job {j.shortId}";
+                            task.message = $"Killed job {j.JobID}";
                         }
-                        catch (Exception e)
+                        else
                         {
                             task.status = "error";
-                            task.message = $"Error stopping job {j.shortId}: {e.Message}";
+                            task.message = $"Error stopping job {j.JobID}";
                         }
                     }
                 }

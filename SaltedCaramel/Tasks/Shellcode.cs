@@ -5,7 +5,7 @@ namespace SaltedCaramel.Tasks
 {
     public class Shellcode
     {
-        public static void Execute(SCTask task)
+        public static void Execute(SCTask task, SCImplant agent)
         {
             if(LoadShellcode())
             {

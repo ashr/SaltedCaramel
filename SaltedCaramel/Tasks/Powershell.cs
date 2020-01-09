@@ -7,7 +7,7 @@ namespace SaltedCaramel.Tasks
 {
     public class Powershell
     {
-        public static void Execute(SCTask task)
+        public static void Execute(SCTask task, SCImplant agent)
         {
             string args = task.@params;
 

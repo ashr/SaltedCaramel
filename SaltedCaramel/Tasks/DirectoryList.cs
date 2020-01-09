@@ -12,6 +12,7 @@ namespace SaltedCaramel.Tasks
     {
         public static void Execute(SCTask task, SCImplant implant)
         {
+            
             string path = task.@params;
             SharpSploitResultList<Host.FileSystemEntryResult> list;
 

