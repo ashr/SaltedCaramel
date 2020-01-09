@@ -13,16 +13,36 @@ using System.Net;
 
 namespace Profiles
 {
+    /// <summary>
+    /// Encryption handler for the Default profile type.
+    /// </summary>
     class DefaultEncryption : Crypto
     {
+        /// <summary>
+        /// Pre-shared key given to us by God to identify
+        /// ourselves to the mothership. When transferring
+        /// C2 Profiles, thsi key must remain the same across
+        /// Profile.Crypto classes.
+        /// </summary>
         private byte[] PSK = { 0x00 };
         private byte[] uuid;
 
+        /// <summary>
+        /// Instantiate a DefaultEncryption class
+        /// </summary>
+        /// <param name="pskString">The Pre-Shared Key in b64 format.</param>
         public DefaultEncryption(string uuidString, string pskString)
         {
             PSK = Convert.FromBase64String(pskString);
             uuid = ASCIIEncoding.ASCII.GetBytes(uuidString);
         }
+
+        /// <summary>
+        /// Encrypt any given plaintext with the PSK given
+        /// to the agent.
+        /// </summary>
+        /// <param name="plaintext">Plaintext to encrypt.</param>
+        /// <returns>Enrypted string.</returns>
         override internal string Encrypt(string plaintext)
         {
             using (Aes scAes = Aes.Create())
@@ -51,6 +71,11 @@ namespace Profiles
             }
         }
 
+        /// <summary>
+        /// Decrypt a string which has been encrypted with the PSK.
+        /// </summary>
+        /// <param name="encrypted">The encrypted string.</param>
+        /// <returns></returns>
         override internal string Decrypt(string encrypted)
         {
             byte[] input = Convert.FromBase64String(encrypted);
