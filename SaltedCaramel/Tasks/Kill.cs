@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Diagnostics;
+using SaltedCaramel.Jobs;
+
 
 namespace SaltedCaramel.Tasks
 {
     public class Kill
     {
-        public static void Execute(SCTask task, SCImplant agent)
+        public static void Execute(Job job, SCImplant agent)
         {
+            SCTask task = job.Task;
             int pid = Convert.ToInt32(task.@params);
             try
             {

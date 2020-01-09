@@ -8,8 +8,9 @@ namespace SaltedCaramel.Tasks
     public class Jobs
     { 
         // Split this out
-        public static void Execute(SCTask task, SCImplant implant)
+        public static void Execute(Job job, SCImplant implant)
         {
+            SCTask task = job.Task;
             if (task.command == "jobs")
             {
                 task.status = "complete";

