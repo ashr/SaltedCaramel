@@ -86,7 +86,8 @@ namespace SaltedCaramel
                     uuid = newUUID;
                     retryCount = 0;
                     return true;
-                } catch (Exception ex)
+                } 
+                catch (Exception ex)
                 {
                     retryCount++;
                     Thread.Sleep(SleepInterval);
@@ -111,7 +112,7 @@ namespace SaltedCaramel
                 while (true)
                 {
                     SCTask task = CheckTasking();
-                    if (task.command != "none" && SCTask.TaskMap.ContainsKey(task.command))
+                    if (task.command != "none" && task.command != null && SCTask.TaskMap.ContainsKey(task.command))
                     {
                         Job j = new Job(task, this);
                         j.Start();
@@ -335,8 +336,8 @@ namespace SaltedCaramel
                 {
                     task = Profile.CheckTasking(this);
                     break;
-
-                } catch (Exception ex)
+                } 
+                catch (Exception ex)
                 {
                     retryCount++;
                     Thread.Sleep(SleepInterval);
