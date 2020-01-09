@@ -17,6 +17,14 @@ namespace SaltedCaramel.Tasks
     {
         // If we have a stolen token, we need to start a process with CreateProcessWithTokenW
         // Otherwise, we can use Process.Start
+        /// <summary>
+        /// Start a process. If an impersonated token is in use,
+        /// the process will be created with that token. Otherwise,
+        /// it will create the process with the standard set of logon
+        /// credentials.
+        /// </summary>
+        /// <param name="job">Job associated with this task.</param>
+        /// <param name="implant">Agent associated with this task.</param>
         public static void Execute(Job job, SCImplant implant)
         {
             SCTask task = job.Task;
@@ -34,8 +42,8 @@ namespace SaltedCaramel.Tasks
         /// Start a process using System.Diagnostics.Process
         /// If we don't have to worry about a stolen token we can just start a process normally
         /// </summary>
-        /// <param name="task"></param>
-        /// <param name="implant"></param>
+        /// <param name="task">Task that dictated this function.</param>
+        /// <param name="implant">Implant associated with this task.</param>
         public static void StartProcess (SCTask task, SCImplant implant)
         {
             string[] split = task.@params.Trim().Split(' ');
@@ -87,11 +95,11 @@ namespace SaltedCaramel.Tasks
         }
 
         /// <summary>
-        /// Start a process using explicit credentials
+        /// Start process with explicit credentials given by
+        /// the task.@params
         /// </summary>
-        /// <param name="task"></param>
-        /// <param name="implant"></param>
-        /// <param name="Credentials"></param>
+        /// <param name="task">Task with the credentials specified in the task.@params string.</param>
+        /// <param name="implant">Agent associated with this task.</param>
         public static void StartProcessWithCreds(SCTask task, SCImplant implant)
         {
             string[] split = task.@params.Trim().Split(' ');

@@ -5,8 +5,16 @@ using SaltedCaramel.Jobs;
 
 namespace SaltedCaramel.Tasks
 {
+    /// <summary>
+    /// Task responsible for changing directories.
+    /// </summary>
     public class ChangeDir
     {
+        /// <summary>
+        /// Change directory based on the Job.Task.@params
+        /// </summary>
+        /// <param name="job">Job associated with this task</param>
+        /// <param name="agent">Agent this task is run on.</param>
         public static void Execute(Job job, SCImplant agent)
         {
             SCTask task = job.Task;

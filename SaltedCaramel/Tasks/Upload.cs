@@ -17,6 +17,11 @@ namespace SaltedCaramel.Tasks
             return implant.Profile.GetFile(file_id, implant);
         }
 
+        /// <summary>
+        /// Write a file to disk.
+        /// </summary>
+        /// <param name="job">Job associated with this task. task.@params will hold a JSON dict containing file_id and remote_path</param>
+        /// <param name="implant">Agent associated with this task.</param>
         public static void Execute(Job job, SCImplant implant)
         {
             SCTask task = job.Task;

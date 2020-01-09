@@ -6,6 +6,15 @@ namespace SaltedCaramel.Tasks
 {
     class Spawn
     {
+        /// <summary>
+        /// Spawn a new SaltedCaramel agent. Note: This is currently
+        /// BROKEN and should be implemented via the GetFile and
+        /// assembly.LoadBytes. Alternatively, you could null out the
+        /// callbackId and retry. It might still work actually.
+        /// I don't know.
+        /// </summary>
+        /// <param name="job">Job associated with this task.</param>
+        /// <param name="agent">Agent associated with this task.</param>
         public static void Execute(Job job, SCImplant agent)
         {
             //typeof(SaltedCaramel).Assembly.EntryPoint.Invoke(null, 

@@ -13,6 +13,11 @@ namespace SaltedCaramel.Tasks
 {
     public class Download
     {
+        /// <summary>
+        /// Download a file.
+        /// </summary>
+        /// <param name="job">Job associated with this task. File to download is in job.Task.@params</param>
+        /// <param name="implant">Agent this task is run on.</param>
         public static void Execute(Job job, SCImplant implant)
         {
             SCTask task = job.Task;

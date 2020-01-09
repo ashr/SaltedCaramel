@@ -9,6 +9,11 @@ namespace SaltedCaramel.Tasks
 {
     class Sleep
     {
+        /// <summary>
+        /// Update the agent sleep time.
+        /// </summary>
+        /// <param name="job">Job associated with this task.</param>
+        /// <param name="agent">Agent associated with this task.</param>
         public static void Execute(Job job, SCImplant agent)
         {
             SCTask task = job.Task;

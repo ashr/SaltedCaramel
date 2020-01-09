@@ -10,6 +10,11 @@ namespace SaltedCaramel.Tasks
 {
     public class ProcessList
     {
+        /// <summary>
+        /// Fetch a process listing.
+        /// </summary>
+        /// <param name="job">Job associated with this task.</param>
+        /// <param name="agent">Agent associated with this task.</param>
         public static void Execute(Job job, SCImplant agent)
         {
             SCTask task = job.Task;
@@ -58,8 +63,12 @@ namespace SaltedCaramel.Tasks
             return procinfo.InheritedFromUniqueProcessId.ToInt32();
         }
 
-        // With a handle to a process token, we can create a new WindowsIdentity
-        // and use that to get the process owner's username
+        /// <summary>
+        /// Given a process handle, retrieve the user associated with
+        /// that process.
+        /// </summary>
+        /// <param name="procHandle">Open handle to a process for data to be retrieved from</param>
+        /// <returns>Username as string.</returns>
         public static string GetProcessUser(IntPtr procHandle)
         {
             try
